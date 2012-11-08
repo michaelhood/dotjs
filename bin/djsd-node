@@ -1,0 +1,48 @@
+#!/usr/local/bin/node
+
+var args = process.argv.join(" ");
+if(args.match(/h|help/)) {
+  console.log("usage: djsd-node [-vh]");
+  console.log("starts dotjs server in the foreground. kill with ^C");
+  process.exit();
+}
+
+if(process.argv.indexOf("-v") !== -1) {
+  console.log("djsd-node 1.0");
+  process.exit();
+}
+
+var http = require("http");
+var fs = require("fs");
+var path = require("path");
+
+var absolute_path = function(url) {
+  return path.resolve(process.cwd, url);
+}
+
+var handle_request = function(request, response) {
+  var file = absolute_path(request.url.replace(/\//, ''));
+  var default_file = absolute_path("default.js");
+
+  response.statusCode = 200;
+  response.setHeader("Content-Type", "text/javascript");
+
+  var origin = request.headers["origin"];
+  if(origin) {
+    response.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  response.write("// dotjs-node works! \n");
+
+  if(path.existsSync(default_file)) {
+    response.write(fs.readFileSync(default_file) + "\n");
+  }
+
+  if(path.existsSync(file)) {
+    response.write(fs.readFileSync(file));
+  }
+  response.end();
+};
+
+var server = http.createServer(handle_request);
+server.listen(3131);
