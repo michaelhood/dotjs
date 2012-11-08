@@ -34,11 +34,11 @@ var handle_request = function(request, response) {
 
   response.write("// dotjs-node works! \n");
 
-  if(path.existsSync(default_file)) {
+  if(fs.existsSync(default_file) && fs.statSync(default_file).isFile()) {
     response.write(fs.readFileSync(default_file) + "\n");
   }
 
-  if(path.existsSync(file)) {
+  if(fs.existsSync(file) && fs.statSync(file).isFile()) {
     response.write(fs.readFileSync(file));
   }
   response.end();
