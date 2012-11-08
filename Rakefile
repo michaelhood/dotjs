@@ -51,6 +51,7 @@ namespace :install do
 
     chmod 0644, agent
     puts "starting djdb..."
+    sh "launchctl unload -w #{agent}"
     sh "launchctl load -w #{agent}"
     # wait for server to start
     sleep 5

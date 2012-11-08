@@ -15,17 +15,24 @@ require 'webrick'
 
 dotjs = Class.new(WEBrick::HTTPServlet::AbstractServlet) do
   def do_GET(request, response)
-    body = build_body(request.path)
+    body = ''
 
-    response.status = body.empty? ? 204 : 200
+    if /\.js$/ =~ request.path
+      body = build_js(request.path)
+      response['Content-Type'] = 'text/javascript'
+    elsif /\.css$/ =~ request.path
+      body = build_css(request.path)
+      response['Content-Type'] = 'text/css'
+    end
+
     if origin = detect_origin(request)
       response['Access-Control-Allow-Origin'] = origin
     end
-    response['Content-Type'] = 'text/javascript'
+    response.status = body.empty? ? 204 : 200
     response.body = body
   end
 
-  def build_body(path)
+  def build_js(path)
     files = [File.expand_path("default.js")]
     paths = path.gsub('/','').split('.')
 
@@ -37,8 +44,29 @@ dotjs = Class.new(WEBrick::HTTPServlet::AbstractServlet) do
 
     body = "// dotjs is working! //\n"
 
-    files.each do |file|
-      body << File.read(file) + "\n" if File.file?(file)
+    files.each do |f|
+      body << File.read(f) + ";\n" if File.file?(f)
+    end
+
+    body
+  end
+
+  def build_css(path)
+    files = []
+    paths = path.gsub('/','').split('.')
+
+    until paths.empty?
+      file = File.expand_path(paths.join('.'))
+      files << file if File.file?(file)
+      paths.shift
+    end
+
+    files << File.expand_path("default.css")
+
+    body = "/* dotjs is working! */\n"
+
+    files.reverse.each do |f|
+      body << File.read(f) + "\n" if File.file?(f)
     end
 
     body
@@ -47,7 +75,7 @@ dotjs = Class.new(WEBrick::HTTPServlet::AbstractServlet) do
   def detect_origin(req)
     path   = req.path
     origin = req.header['origin']
-    search = path.gsub('/','').gsub(/\.js$/,'') + '$'
+    search = path.gsub('/','').gsub(/\.(js|css)$/,'') + '$'
 
     if origin.length == 1 && path.length != 1 && origin[0].match(search)
       origin[0]
