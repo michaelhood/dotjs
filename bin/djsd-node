@@ -26,14 +26,25 @@ var handle_request = function(request, response) {
   var default_file = absolute_path("default.js");
 
   response.statusCode = 200;
-  response.setHeader("Content-Type", "text/javascript");
+  var fbase = file.slice(0, file.indexOf("."));
+  var fext = file.slice(file.lastIndexOf(".")+1);
+  var mime = "text/plain";
+  switch (fext) {
+    case "js":
+      mime = "text/javascript";
+      break;
+    case "css":
+      mime = "text/css";
+      break;
+  }
+  response.setHeader("Content-Type", mime);
 
   var origin = request.headers["origin"];
   if(origin) {
     response.setHeader("Access-Control-Allow-Origin", origin);
   }
 
-  response.write("// dotjs-node works! \n");
+  response.write("// dotjs " + fext + "\n");
 
   if(fs.existsSync(default_file) && fs.statSync(default_file).isFile()) {
     response.write(fs.readFileSync(default_file) + "\n");
