@@ -13,6 +13,7 @@ if(process.argv.indexOf("-v") !== -1) {
 }
 
 var http = require("http");
+var https = require("https");
 var fs = require("fs");
 var path = require("path");
 
@@ -44,5 +45,13 @@ var handle_request = function(request, response) {
   response.end();
 };
 
-var server = http.createServer(handle_request);
-server.listen(3131);
+var ssl_options = {
+  key: fs.readFileSync('/Users/mh/repos/mh/osx/ssl/local.key'),
+  cert: fs.readFileSync('/Users/mh/repos/mh/osx/ssl/local.crt')
+};
+
+var server_https = https.createServer(ssl_options, handle_request);
+server_https.listen(3132);
+
+var server_http = http.createServer(handle_request);
+server_http.listen(3131);
