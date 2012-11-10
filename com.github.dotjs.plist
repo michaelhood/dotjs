@@ -8,11 +8,11 @@
   <true/>
   <key>ProgramArguments</key>
   <array>
-    <string><%= DAEMON_INSTALL_DIR %>/djsd</string>
+    <string>/usr/local/bin/djsd-node</string>
   </array>
   <key>RunAtLoad</key>
   <true/>
   <key>WorkingDirectory</key>
-  <string><%= File.join(ENV['HOME'], ".js") %></string>
+  <string>/Users/mh/.js</string>
 </dict>
 </plist>
