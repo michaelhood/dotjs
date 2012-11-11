@@ -62,7 +62,7 @@ var ssl_options = {
 };
 
 var server_https = https.createServer(ssl_options, handle_request);
-server_https.listen(3132);
+server_https.listen(3132, "127.0.0.1");
 
 var server_http = http.createServer(handle_request);
-server_http.listen(3131);
+server_http.listen(3131, "127.0.0.1");
